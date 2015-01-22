@@ -1,49 +1,48 @@
 require 'award'
 
-def update_quality(awards)
-  awards.each do |award|
-    if award.name != 'Blue First' && award.name != 'Blue Compare'
-      if award.quality > 0
-        if award.name != 'Blue Distinction Plus'
-          award.quality -= 1
-        end
-      end
-    else
-      if award.quality < 50
-        award.quality += 1
-        if award.name == 'Blue Compare'
-          if award.expires_in < 11
-            if award.quality < 50
-              award.quality += 1
-            end
-          end
-          if award.expires_in < 6
-            if award.quality < 50
-              award.quality += 1
-            end
-          end
-        end
-      end
-    end
-    if award.name != 'Blue Distinction Plus'
-      award.expires_in -= 1
-    end
-    if award.expires_in < 0
-      if award.name != 'Blue First'
-        if award.name != 'Blue Compare'
-          if award.quality > 0
-            if award.name != 'Blue Distinction Plus'
-              award.quality -= 1
-            end
-          end
+def quality_change(award)
+    case award.name
+    when 'Blue First'
+        if(award.expires_in <= 0)
+          award.quality += 2
         else
-          award.quality = award.quality - award.quality
-        end
-      else
-        if award.quality < 50
           award.quality += 1
         end
-      end
+    when 'Blue Compare'
+        if (award.expires_in <= 0)
+          award.quality = 0
+        elsif(award.expires_in <= 10)
+            award.quality += 2
+            if(award.expires_in <= 5)
+              award.quality += 1
+            end
+        else 
+            award.quality += 1
+        end
+    when 'Blue Star'
+        if(award.expires_in > 0)
+            award.quality -= 2
+        else 
+            award.quality -= 4
+        end
+    else
+        if(award.expires_in > 0)
+            award.quality -= 1
+        else 
+            award.quality -= 2
+        end
     end
+end
+
+def update_quality(awards)
+  awards.each do |award| 
+    quality_change(award)
+
+    if (award.name != 'Blue Distinction Plus')
+        award.expires_in -= 1
+    end
+
   end
 end
+
+
